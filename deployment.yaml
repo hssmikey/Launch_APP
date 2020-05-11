@@ -1,43 +1,31 @@
-# Be sure to change the environment variables below for DOCKERUSER and DOCKERPASS
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: launch
-  namespace: cir-anders-namespace
+  name: gke-launch
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: launch
+      app: gke-launch
   template:
     metadata:
       labels:
-        app: launch
+        app: gke-launch
     spec:
       containers:
-      - name: launch-frontend
-        image: stolaunch/launchfrontend:latest
-        resources:
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+      - name: frontend
+        image: gcr.io/conductive-fold-275020/frontend:latest
         ports:
         - containerPort: 5000
-      - name: launch-backend
-        image: stolaunch/launchbackend:latest
+      - name: backend
+        image: gcr.io/conductive-fold-275020/backend:latest
         env:
-        - name: DOCKERUSER
+        - name: dblake15
           value: "stolaunch"
-        - name: DOCKERPASS
+        - name: capstoneproject
           value: "launchpass"
         - name: NAMESPACE
           value: "cir-anders-namespace"
-        #- name: DEPLOYED
-        #  value: "True"
-        resources:
-          limits:
-            cpu: "500m"
         ports:
         - containerPort: 5001
         volumeMounts:
