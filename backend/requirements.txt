@@ -1,9 +1,11 @@
+--upgrade pip
+grpcio
+grpcio-tools
 docker
 flask
 kubernetes
 pymongo[tls, srv]
-pyyaml
-grpcio==1.27.2
+pyyaml 
 google-auth
 google-cloud-container
 
