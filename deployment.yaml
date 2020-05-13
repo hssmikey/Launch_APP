@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gke-launch
+  name: launch-APP
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gke-launch
+      app: launch-APP
   template:
     metadata:
       labels:
-        app: gke-launch
+        app: launch-APP
     spec:
       containers:
       - name: frontend
@@ -19,13 +19,13 @@ spec:
         - containerPort: 5000
       - name: backend
         image: gcr.io/conductive-fold-275020/backend:latest
-        env:
-        - name: dblake15
-          value: "stolaunch"
-        - name: capstoneproject
-          value: "launchpass"
-        - name: NAMESPACE
-          value: "cir-anders-namespace"
+        # env:
+        # - name: dblake15
+        #   value: "stolaunch"
+        # - name: capstoneproject
+        #   value: "launchpass"
+        # - name: NAMESPACE
+        #   value: "cir-anders-namespace"
         ports:
         - containerPort: 5001
         volumeMounts:
