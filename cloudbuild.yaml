@@ -29,7 +29,7 @@ steps:
       - KUBECONFIG=/workspace/.kube/config
 
   - name: "gcr.io/cloud-builders/kubectl"
-    args: ["expose", "deployment", "launch-APP", "--type=LoadBalancer", "--name=launch-APP-service"]
+    args: ["expose", "deployment", "launch-app", "--type=LoadBalancer", "--name=launch-app-service"]
     env:
       - CLOUDSDK_COMPUTE_REGION=$_CUSTOM_REGION
       - CLOUDSDK_CONTAINER_CLUSTER=$_CUSTOM_CLUSTER

@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: launch-APP
+  name: launch-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: launch-APP
+      app: launch-app
   template:
     metadata:
       labels:
-        app: launch-APP
+        app: launch-app
     spec:
       containers:
       - name: frontend
