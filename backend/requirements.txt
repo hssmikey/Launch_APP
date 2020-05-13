@@ -4,5 +4,6 @@ kubernetes
 pymongo[tls, srv]
 pyyaml
 google.auth
-google.oauth2
-google.cloud.container_v1
+google.cloud
+google-oauth
+google_oauth2_tool
