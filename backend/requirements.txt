@@ -3,5 +3,6 @@ flask
 kubernetes
 pymongo[tls, srv]
 pyyaml
-
-
+google.auth
+google.oauth2
+google.cloud.container_v1

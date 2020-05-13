@@ -1,5 +1,3 @@
-WARNING: 2019-12-14 12:23:27,245 no connection to mongodb
-WARNING: 2019-12-14 12:23:27,245 Docker username set by hard-coded value: stolaunch
-WARNING: 2019-12-14 12:23:27,707  * Debugger is active!
-INFO: 2019-12-14 12:23:27,717  * Debugger PIN: 120-455-526
-INFO: 2019-12-14 12:23:27,747  * Running on http://0.0.0.0:5001/ (Press CTRL+C to quit)
+WARNING: 2020-05-13 13:15:19,056 Docker username set by hard-coded value: stolaunch
+WARNING: 2020-05-13 13:15:19,079  * Debugger is active!
+INFO: 2020-05-13 13:15:19,112  * Debugger PIN: 158-289-851

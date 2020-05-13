@@ -4,30 +4,55 @@ from kubernetes import client, config
 import logging
 import os
 import re
+from os import path
+import yaml
+from google.auth import compute_engine
+from google.cloud.container_v1 import ClusterManagerClient
+from google.oauth2 import service_account
 
 logging.basicConfig(filename="backend.log", format='%(levelname)s: %(asctime)s %(message)s', filemode='w')
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-try:
-    namespace = os.environ['NAMESPACE']
-except:
-    namespace = 'cir-anders-namespace'
+namespace = 'default'
 
-def create_deployment_object(images, app_name, config_location):
+def google_authenticate(project_id, zone, cluster_id, key):
+    SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
+    try:
+        fw = open('key.json', 'r')
+        fw.close()
+        print("key.json exists")
+    except:
+        fw = open('key.json', 'w')
+        fw.write(key)
+        fw.close()
+        print("key.json did not exist")
+    credentials = service_account.Credentials.from_service_account_file("key.json", scopes=SCOPES)
+    cluster_manager_client = ClusterManagerClient(credentials=credentials)
+    cluster = cluster_manager_client.get_cluster(project_id, zone, cluster_id)
+    configuration = client.Configuration()
+    configuration.host = "https://"+cluster.endpoint+":443"
+    configuration.verify_ssl = False
+    configuration.api_key = {"authorization": "Bearer " + credentials.token}
+    return configuration
+
+def create_deployment_object(images, app_name, config_location, key):
     try:
         username = os.environ['DOCKERUSER']
     except:
         username = 'stolaunch'
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        logger.info("Loading k8s config from $HOME/.kube (or your default location)")
-        config.load_kube_config()
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     logger.info("Loading k8s config from {}".format(config_location))
+    #     config.load_kube_config(config_location)
+    # else:
+    #     logger.info("Loading k8s config from $HOME/.kube (or your default location)")
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
+
     containers = []
     # Create a container for each image
     for image in images:
@@ -60,16 +85,18 @@ def create_deployment_object(images, app_name, config_location):
     # Return our deployment object
     return deployment
 
-def create_deployment(deployment, config_location):
+def create_deployment(deployment, config_location, key):
     logger.debug("Creating deployment")
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        config.load_kube_config(config_location)
-    else:
-        logger.info("Loading k8s config from default")
-        config.load_kube_config()
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     config.load_kube_config(config_location)
+    # else:
+    #     logger.info("Loading k8s config from default")
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
     v1 = client.AppsV1Api()
     api_resp = v1.create_namespaced_deployment(
         body=deployment,
@@ -78,17 +105,19 @@ def create_deployment(deployment, config_location):
     logger.info("Created deployment. Status={}".format(str(api_resp.status)))
     return
 
-def update_deployment(deployment, deployment_name, config_location):
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        logger.info("Loading k8s config from default")
-        config.load_kube_config()
-        v1 = client.AppsV1Api()
+def update_deployment(deployment, deployment_name, config_location, key):
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     logger.info("Loading k8s config from {}".format(config_location))
+    #     config.load_kube_config(config_location)
+    # else:
+    #     logger.info("Loading k8s config from default")
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
+    v1 = client.AppsV1Api()
     api_resp = v1.patch_namespaced_deployment(
         name=deployment_name,
         namespace=namespace,
@@ -97,16 +126,19 @@ def update_deployment(deployment, deployment_name, config_location):
     logger.info("Deployment updated. Status={}".format(api_resp.status))
     return
 
-def delete_deployment(deployment_name, config_location, update=False): # deployment_name is just <repo>
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        logger.info("Loading k8s config from default")
-        config.load_kube_config()
+def delete_deployment(deployment_name, config_location, key, update=False): # deployment_name is just <repo>
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     logger.info("Loading k8s config from {}".format(config_location))
+    #     config.load_kube_config(config_location)
+    # else:
+    #     logger.info("Loading k8s config from default")
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
+
     v1 = client.AppsV1Api()
     corev1 = client.CoreV1Api()
     api_resp = v1.delete_namespaced_deployment(
@@ -125,15 +157,18 @@ def delete_deployment(deployment_name, config_location, update=False): # deploym
     logger.info("Deployment deleted. Status={}".format(str(api_resp.status)))
     return
 
-def create_service(deployment_name, port, config_location): # Returns the port to find this service at
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        config.load_kube_config()
+def create_service(deployment_name, port, config_location, key): # Returns the port to find this service at
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     logger.info("Loading k8s config from {}".format(config_location))
+    #     config.load_kube_config(config_location)
+    # else:
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
+
     v1 = client.CoreV1Api()
     try:
         v1.delete_namespaced_service(
@@ -165,15 +200,18 @@ def create_service(deployment_name, port, config_location): # Returns the port t
         return 1
 
 # returns the port that you can access the deployment at, if the deployment has been created
-def get_node_port_from_repo(repo, config_location):
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        config.load_kube_config()
+def get_node_port_from_repo(repo, config_location, key):
+    # if 'DEPLOYED' in os.environ:
+    #     logger.info("Running in a k8s cluster")
+    #     config.load_incluster_config()
+    # elif config_location != None:
+    #     logger.info("Loading k8s config from {}".format(config_location))
+    #     config.load_kube_config(config_location)
+    # else:
+    #     config.load_kube_config()
+    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    client.Configuration.set_default(configuration)
+
     v1 = client.CoreV1Api()
     services = v1.list_namespaced_service(namespace=namespace)
     for service in services.items:
@@ -183,18 +221,21 @@ def get_node_port_from_repo(repo, config_location):
             return str(service.spec.ports[0].node_port)
     return "None"
 
-def get_deployments_from_username(user, config_location):
-    if 'DEPLOYED' in os.environ:
-        logger.info("Running in a k8s cluster")
-        config.load_incluster_config()
-    elif config_location != None:
-        logger.info("Loading k8s config from {}".format(config_location))
-        config.load_kube_config(config_location)
-    else:
-        config.load_kube_config()
-    v1 = client.CoreV1Api()
-    deployments = v1.list_namespaced_deployment(namespace=namespace)
-    ret_val = []
-    for deployment in deployments.items:
-        ret_val.append(deployment.metadata.name)
-    return ret_val
+# def get_deployments_from_username(user, config_location, key):
+#     # if 'DEPLOYED' in os.environ:
+#     #     logger.info("Running in a k8s cluster")
+#     #     config.load_incluster_config()
+#     # elif config_location != None:
+#     #     logger.info("Loading k8s config from {}".format(config_location))
+#     #     config.load_kube_config(config_location)
+#     # else:
+#     #     config.load_kube_config()
+#     configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+#     client.Configuration.set_default(configuration)
+
+#     v1 = client.CoreV1Api()
+#     deployments = v1.list_namespaced_deployment(namespace=namespace)
+#     ret_val = []
+#     for deployment in deployments.items:
+#         ret_val.append(deployment.metadata.name)
+#     return ret_val

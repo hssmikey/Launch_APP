@@ -44,7 +44,8 @@ def find_dockerfiles(user, repo):
     return result
 
 # Returns a string with the image tag (name of the image created)
-def create_image(repo, user, path_to_dockerfile, is_frontend=False):
+def create_image(repo, user, key, path_to_dockerfile, is_frontend=False):
+    print("create image key: ", key)
     try:
         username = os.environ['DOCKERUSER']
         password = os.environ['DOCKERPASS']
@@ -67,13 +68,19 @@ def create_image(repo, user, path_to_dockerfile, is_frontend=False):
     except:
         logger.critical("Could not open Dockerfile")
     logger.debug("Creating image from: {}".format(path_to_dockerfile))
+
+    #creation of our docker image and pushing it to google container repository
     client = docker.from_env()
     path_to_dockerfile = path_to_dockerfile.replace('Dockerfile', '')
-    tag = username + "/" + path_to_dockerfile.replace(homedir(), '').replace(user, '').replace('/', '') + ":latest"
+    tag ="gcr.io/conductive-fold-275020/" + path_to_dockerfile.replace(homedir(), '').replace(user, '').replace('/', '') + ":latest"
+    print("tag: ", tag)
     client.images.build(path=path_to_dockerfile, rm=True, tag=tag, platform='amd64')
     logger.info("Image tag is: {}".format(tag))
-    client.login(username=username, password=password)
+    key = "$(" + key + ")"
+    client.login(username="_json_key", password = key, email= "1011931254470-compute@developer.gserviceaccount.com", registry= "https://gcr.io", reauth= False, dockercfg_path=None)
     client.images.push(tag)
+    #end image creation
+
     logger.info("Pushed image to {}".format(tag))
     basedir = '{}/{}/{}'.format(homedir(), user, repo)
     return (tag, container_port)

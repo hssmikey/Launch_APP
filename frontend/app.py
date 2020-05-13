@@ -92,7 +92,7 @@ def RepoForm():
 @app.route('/submit')
 def Submit():
     # This is where we can reach out to the tool and start spinning up a container!
-    send_data = {'user': session.get('user'), 'repo': session.get('repo'), 'db': session.get('db')}
+    send_data = {'key': session.get('key'),'user': session.get('user'), 'repo': session.get('repo'), 'db': session.get('db')}
     url = None
     try:
         if session.get('crud') != 'delete':

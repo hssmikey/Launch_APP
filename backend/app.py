@@ -4,7 +4,8 @@ import os, sys, subprocess
 from docker_helper import clone_repo, create_image, find_dockerfiles
 from kubernetes_helper import *
 import logging
-import config
+#import config
+import json
 import requests
 
 app = Flask(__name__)
@@ -16,14 +17,14 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-try:
-    client = MongoClient("mongodb+srv://{}:{}@launch-emlpr.gcp.mongodb.net/LaunchDB?retryWrites=true&w=majority".format(config.username,config.password))
-    db = client['LaunchDB']
-    users = db.users
-    logger.info("mongodb set up complete")
-    logger.info("setup users collection")
-except:
-    logger.warning("no connection to mongodb")
+# try:
+#     client = MongoClient("mongodb+srv://{}:{}@launch-emlpr.gcp.mongodb.net/LaunchDB?retryWrites=true&w=majority".format(config.username,config.password))
+#     db = client['LaunchDB']
+#     users = db.users
+#     logger.info("mongodb set up complete")
+#     logger.info("setup users collection")
+# except:
+#     logger.warning("no connection to mongodb")
 
 try:
     logger.info("Docker username set by environment variables: {}".format(os.environ['DOCKERUSER']))
@@ -45,28 +46,30 @@ def api(query):
     logger.debug("GET request to '/api/{}".format(query))
     return("Placeholder")
 # finds all objects in database, then makes jsonfile with all objects
-@app.route('/api/getAll',methods=['GET'])
-def getAllObj():
-    logger.debug("GET request to '/api/getAll")
-    json_data = db.users.find()
-    writeTOJSONFile(json_data)
-def writeTOJSONFile(json_data):
-    file = open("all_objects.json", "w")
-    json_docs = []
-    file.write('[')
-    for document in json_data:
-        json_docs = json.dumps(document, default=json_util.default)
-        json_docs.append(json_docs)
-        file.write(json.dumps(document))
-        file.write(',')
-    file.write(']')
-    return json_docs
+# @app.route('/api/getAll',methods=['GET'])
+# def getAllObj():
+#     logger.debug("GET request to '/api/getAll")
+#     json_data = db.users.find()
+#     writeTOJSONFile(json_data)
+# def writeTOJSONFile(json_data):
+#     file = open("all_objects.json", "w")
+#     json_docs = []
+#     file.write('[')
+#     for document in json_data:
+#         json_docs = json.dumps(document, default=json_util.default)
+#         json_docs.append(json_docs)
+#         file.write(json.dumps(document))
+#         file.write(',')
+#     file.write(']')
+#     return json_docs
 # Responds to POST requests that contain JSON data
 @app.route('/deploy', methods=['POST'])
 @app.route('/deploy/<update>')
 def deploy(update=None):
     if request.method == "POST":
         json_data = request.get_json()
+        key = json_data['key']
+        print("key: ", key)
         user = json_data['user']
         repo = json_data['repo']
         db = json_data['db']
@@ -76,7 +79,7 @@ def deploy(update=None):
             dockerfiles = find_dockerfiles(user, repo)
             for path_to_dockerfile in dockerfiles:
                 logger.info("calling create_image({}, {}, {})".format(repo, user, path_to_dockerfile))
-                images.append(create_image(repo, user, path_to_dockerfile))
+                images.append(create_image(repo, user, key, path_to_dockerfile))
                 logger.info("Added image {} to list".format(images[-1]))
             userdir = os.path.expanduser("~") + '/' + user
             if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
@@ -95,13 +98,13 @@ def deploy(update=None):
         try:
             if update:
                 logger.info("Update exists: {}".format(update))
-                delete_deployment(deployment_name, config_location, True)
+                delete_deployment(deployment_name, config_location, key, True)
             else:
                 ("Update doesn't exist: {}".format(update))
-                delete_deployment(deployment_name, config_location)
+                delete_deployment(deployment_name, config_location,  key)
         except:
             logger.error("Tried to delete deployment, but threw an error")
-        create_deployment(create_deployment_object(images, deployment_name, config_location=config_location), config_location=config_location)
+        create_deployment(create_deployment_object(images, deployment_name, config_location=config_location, key= key), config_location=config_location, key = key)
         logger.info("Creating deployment")
         try:
             port = -1
@@ -110,7 +113,7 @@ def deploy(update=None):
                     port = int(image[1])
             if port == -1:
                 port = int(images[0][1])
-            node_port = create_service(deployment_name, port, config_location)
+            node_port = create_service(deployment_name, port, config_location, key= key)
         except:
             node_port = -1
             logger.critical("Could not create a service for this application.")
@@ -133,39 +136,36 @@ def deploy(update=None):
             logger.info("MongoDB could not be found")
     return("Running on port {}".format(node_port))
 
-@app.route("/delete/<deployment>", methods=["POST"])
-def delete(deployment):
-    try:
-        delete_deployment(deployment, config_location)
-        return("Deleted {}".format(deployment))
-    except:
-        return("Error trying to delete deployment {}. Does it exist?".format(deployment))
+# @app.route("/delete/<deployment>", methods=["POST"])
+# def delete(deployment):
+#     try:
+#         delete_deployment(deployment, config_location, key)
+#         return("Deleted {}".format(deployment))
+#     except:
+#         return("Error trying to delete deployment {}. Does it exist?".format(deployment))
 
-@app.route("/list/<user>/<list_type>")
-def list_items(user, list_type):
-    URL = "https://api.github.com/users/{}/repos".format(user)
-    try:
-        r = requests.get(URL)        
-    except:
-        return "Error getting to GitHub pulling data for user: {}".format(user)
-    repo_json = r.json()
-    repo_ports = {}
-    if list_type == 'ports':
-        try:
-            for repo in repo_json:
-                repo_ports[repo['name']] = get_node_port_from_repo(repo=repo['name'], config_location=config_location)
-            return repo_ports
-        except:
-            return "Error occured pulling data"
-    if list_type == 'deployments':
-        try:
-            return get_deployments_from_username(user=user, config_location=config_location)
-        except:
-            return "Error, there either are no deployments for this user or there's a deeper issue..."
+# @app.route("/list/<user>/<list_type>")
+# def list_items(user, list_type):
+#     URL = "https://api.github.com/users/{}/repos".format(user)
+#     try:
+#         r = requests.get(URL)        
+#     except:
+#         return "Error getting to GitHub pulling data for user: {}".format(user)
+#     repo_json = r.json()
+#     repo_ports = {}
+#     if list_type == 'ports':
+#         try:
+#             for repo in repo_json:
+#                 repo_ports[repo['name']] = get_node_port_from_repo(repo=repo['name'], config_location=config_location)
+#             return repo_ports
+#         except:
+#             return "Error occured pulling data"
+#     if list_type == 'deployments':
+#         try:
+#             return get_deployments_from_username(user=user, config_location=config_location, key= key)
+#         except:
+#             return "Error, there either are no deployments for this user or there's a deeper issue..."
 
-
-
-        
 if __name__ == '__main__':
     app.debug = True
     app.run(use_reloader=True, debug=True, host='0.0.0.0', port=5001)
