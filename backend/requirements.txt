@@ -3,3 +3,4 @@ flask
 kubernetes
 pymongo[tls, srv]
 pyyaml
+google.cloud
