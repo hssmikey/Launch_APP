@@ -9,6 +9,7 @@ import yaml
 from google.auth import compute_engine
 from google.cloud.container_v1 import ClusterManagerClient
 from google.oauth2 import service_account
+
 logging.basicConfig(filename="backend.log", format='%(levelname)s: %(asctime)s %(message)s', filemode='w')
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)

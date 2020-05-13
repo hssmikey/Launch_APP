@@ -1,7 +1,7 @@
 from flask import Flask, request
 # from pymongo import *
 import os, sys, subprocess
-from docker_helper import clone_repo, create_image, find_dockerfiles
+from docker_helper import create_image, clone_repo, find_dockerfiles
 from kubernetes_helper import *
 import logging
 #import config
@@ -31,10 +31,7 @@ try:
 except:
     logger.warning("Docker username set by hard-coded value: {}".format('stolaunch'))
 
-try:
-    config_location = sys.argv[1]
-except:
-    config_location = None
+config_location = None
 
 @app.route('/')
 def home():
