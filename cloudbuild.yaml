@@ -1,0 +1,40 @@
+steps:
+    # build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/conductive-fold-275020/backend:latest", "backend/"]
+    #gcr.io/conductive-fold-275020/front@sha256:2587a3ae18e96d500a669357ff6fe13c9cbdedbe79139ef8be90568fdc5ba5e2
+    # push container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/conductive-fold-275020/backend:latest"]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-t", "gcr.io/conductive-fold-275020/frontend:latest", "frontend/"]
+    #gcr.io/conductive-fold-275020/front@sha256:2587a3ae18e96d500a669357ff6fe13c9cbdedbe79139ef8be90568fdc5ba5e2
+    # push container image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/conductive-fold-275020/frontend:latest"]
+    # deploy container image to GKE
+
+  # - name: "gcr.io/cloud-builders/gke-deploy"
+  #    args:
+  #    - run
+  #    - --filename=deployment.yaml
+  #    - --location=$_CUSTOM_REGION
+  #    - --cluster=$_CUSTOM_CLUSTER
+  - name: "gcr.io/cloud-builders/kubectl"
+    args: ["apply", "-f","deployment.yaml"]
+    env:
+      - CLOUDSDK_COMPUTE_REGION=$_CUSTOM_REGION
+      - CLOUDSDK_CONTAINER_CLUSTER=$_CUSTOM_CLUSTER
+      - KUBECONFIG=/workspace/.kube/config
+
+  - name: "gcr.io/cloud-builders/kubectl"
+    args: ["expose", "deployment", "gke-launch", "--type=LoadBalancer", "--name=gke-service"]
+    env:
+      - CLOUDSDK_COMPUTE_REGION=$_CUSTOM_REGION
+      - CLOUDSDK_CONTAINER_CLUSTER=$_CUSTOM_CLUSTER
+      - KUBECONFIG=/workspace/.kube/config
+      
+substitutions:
+  _CUSTOM_REGION: us-central1-c
+  _CUSTOM_CLUSTER: launch-cluster
