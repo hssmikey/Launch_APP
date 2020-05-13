@@ -6,4 +6,3 @@ pyyaml
 google.auth
 google.cloud
 google-oauth
-google_oauth2_tool
