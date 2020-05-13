@@ -9,9 +9,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-FROM docker:git
-COPY --from=compile-image /app/env /app
-ENV PATH="/app/env/bin:$PATH"
+FROM docker:git AS build-image
+COPY --from=compile-image /app/env /app/usr/local
+# ENV PATH="/app/usr/local/bin:$PATH"
 COPY . /app
 WORKDIR /app
 EXPOSE 5001
