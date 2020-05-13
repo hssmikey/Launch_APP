@@ -1,6 +1,8 @@
 FROM docker:git
 COPY . /app
 WORKDIR /app
+
+FROM ubuntu
 RUN apt-get update && apt-get -y install gcc mono-mcs 
 # && rm -rf /var/lib/apt/lists/*
 RUN apk add --no-cache python3
