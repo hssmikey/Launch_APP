@@ -3,5 +3,7 @@ flask
 kubernetes
 pymongo[tls, srv]
 pyyaml
-google-cloud-container
+grpcio==1.27.2
 google-auth
+google-cloud-container
+
