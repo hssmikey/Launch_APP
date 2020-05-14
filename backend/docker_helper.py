@@ -45,7 +45,7 @@ def find_dockerfiles(user, repo):
 
 # Returns a string with the image tag (name of the image created)
 def create_image(repo, user, key, path_to_dockerfile, is_frontend=False):
-    print("create image key: ", key)
+    logger.info("Json key value is {}".format(key))
     try:
         username = os.environ['DOCKERUSER']
         password = os.environ['DOCKERPASS']
@@ -70,6 +70,7 @@ def create_image(repo, user, key, path_to_dockerfile, is_frontend=False):
     logger.debug("Creating image from: {}".format(path_to_dockerfile))
 
     #creation of our docker image and pushing it to google container repository
+   # client = docker.DockerClient(base_url='unix://var/run/docker.sock')
     client = docker.from_env()
     path_to_dockerfile = path_to_dockerfile.replace('Dockerfile', '')
     tag ="gcr.io/conductive-fold-275020/" + path_to_dockerfile.replace(homedir(), '').replace(user, '').replace('/', '') + ":latest"
@@ -77,7 +78,8 @@ def create_image(repo, user, key, path_to_dockerfile, is_frontend=False):
     client.images.build(path=path_to_dockerfile, rm=True, tag=tag, platform='amd64')
     logger.info("Image tag is: {}".format(tag))
     key = "$(" + key + ")"
-    client.login(username="_json_key", password = key, email= "1011931254470-compute@developer.gserviceaccount.com", registry= "https://gcr.io", reauth= False, dockercfg_path=None)
+    logger.info("stringified for docker login key: {}".format(key))
+    client.login(username="_json_key", password = key, email= None, registry= "https://gcr.io", reauth= False, dockercfg_path=None)
     client.images.push(tag)
     #end image creation
 

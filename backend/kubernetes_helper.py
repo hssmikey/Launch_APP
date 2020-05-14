@@ -50,7 +50,7 @@ def create_deployment_object(images, app_name, config_location, key):
     # else:
     #     logger.info("Loading k8s config from $HOME/.kube (or your default location)")
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
 
     containers = []
@@ -95,7 +95,7 @@ def create_deployment(deployment, config_location, key):
     # else:
     #     logger.info("Loading k8s config from default")
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
     v1 = client.AppsV1Api()
     api_resp = v1.create_namespaced_deployment(
@@ -115,7 +115,7 @@ def update_deployment(deployment, deployment_name, config_location, key):
     # else:
     #     logger.info("Loading k8s config from default")
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
     v1 = client.AppsV1Api()
     api_resp = v1.patch_namespaced_deployment(
@@ -136,7 +136,7 @@ def delete_deployment(deployment_name, config_location, key, update=False): # de
     # else:
     #     logger.info("Loading k8s config from default")
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
 
     v1 = client.AppsV1Api()
@@ -166,7 +166,7 @@ def create_service(deployment_name, port, config_location, key): # Returns the p
     #     config.load_kube_config(config_location)
     # else:
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
 
     v1 = client.CoreV1Api()
@@ -209,7 +209,7 @@ def get_node_port_from_repo(repo, config_location, key):
     #     config.load_kube_config(config_location)
     # else:
     #     config.load_kube_config()
-    configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+    configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
     client.Configuration.set_default(configuration)
 
     v1 = client.CoreV1Api()
@@ -230,7 +230,7 @@ def get_node_port_from_repo(repo, config_location, key):
 #     #     config.load_kube_config(config_location)
 #     # else:
 #     #     config.load_kube_config()
-#     configuration = google_authenticate('conductive-fold-275020', 'us-central1-c', 'launch-cluster', key= key)
+#     configuration = google_authenticate('big-keyword-275020', 'us-central1-c', 'launch-cluster', key= key)
 #     client.Configuration.set_default(configuration)
 
 #     v1 = client.CoreV1Api()

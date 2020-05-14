@@ -64,10 +64,12 @@ def api(query):
 @app.route('/deploy/<update>')
 def deploy(update=None):
     if request.method == "POST":
+        
         json_data = request.get_json()
         key = json_data['key']
-        print("key: ", key)
+        logger.info("Value of the key is: {}".format(key))
         user = json_data['user']
+        logger.info("Value of user is {}".format(user))
         repo = json_data['repo']
         db = json_data['db']
         logger.debug("User selected database: {}".format(db))

@@ -14,18 +14,11 @@ spec:
     spec:
       containers:
       - name: gke-frontend
-        image: gcr.io/conductive-fold-275020/gke-frontend:latest
+        image: gcr.io/big-keyword-275020/gke-frontend:latest
         ports:
         - containerPort: 5000
       - name: gke-backend
-        image: gcr.io/conductive-fold-275020/gke-backend:latest
-        # env:
-        # - name: dblake15
-        #   value: "stolaunch"
-        # - name: capstoneproject
-        #   value: "launchpass"
-        # - name: NAMESPACE
-        #   value: "cir-anders-namespace"
+        image: gcr.io/big-keyword-275020/gke-backend:latest
         ports:
         - containerPort: 5001
         volumeMounts:

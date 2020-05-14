@@ -7,6 +7,7 @@ import sys
 import json
 import logging
 import re
+import subprocess
 
 logging.basicConfig(filename="app.log", format='%(levelname)s: %(asctime)s %(message)s', filemode='w')
 logger = logging.getLogger()
@@ -37,9 +38,15 @@ app.secret_key = 'devkey' # There are better ways to generate a random string
 # App routes are used to handle browser requests at different endpoints in our project
 @app.route('/', methods = ('GET', 'POST'))
 def UserForm():
+    logger.info("Begin")
+    #subprocess.call(['gcloud', 'auth', 'login', '--no-launch-browser'])
+    subprocess.call(['gcloud', 'auth', 'configure-docker'])
+    logger.info("End")
+    print("as;ldkfjaslkdfj", file = sys.stderr)
     form = User()
     if request.method == 'POST':
         session['user'] = form.user.data
+        session['key'] = form.key.data
         return redirect('/repo')
     return render_template('form.html', form=form, title="Launch UI")
 
