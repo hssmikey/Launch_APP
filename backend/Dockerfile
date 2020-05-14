@@ -12,13 +12,14 @@
 FROM docker:git AS build-image
 # COPY --from=compile-image /app/env /app/env
 # ENV PATH="/app/env/bin:$PATH"
+
+COPY . /app
+WORKDIR /app
 RUN apk add --no-cache gcc g++ python3 python3-dev libc-dev linux-headers musl-dev
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
-COPY . /app
-WORKDIR /app
 EXPOSE 5001
 CMD ["python3", "./app.py"]
 # COPY --from=compiler-dependency /usr/bin/ .
 
-# /Library/Frameworks/Python.framework/Versions/3.6/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Library/Apple/bin:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Users/dylanblake/google-cloud-sdk/bin:/usr/local/ImageMagick-7.0.8/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin
+# /Library/Frameworks/Python.framework/Versions/3.6/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin
