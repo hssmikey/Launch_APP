@@ -1,18 +1,18 @@
 steps:
     # build the container image
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/conductive-fold-275020/backend:latest", "backend/"]
+#   - name: "gcr.io/cloud-builders/docker"
+#     args: ["build", "-t", "gcr.io/conductive-fold-275020/backend:latest", "backend/"]
     #gcr.io/conductive-fold-275020/front@sha256:2587a3ae18e96d500a669357ff6fe13c9cbdedbe79139ef8be90568fdc5ba5e2
     # push container image
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/conductive-fold-275020/backend:latest"]
+#   - name: "gcr.io/cloud-builders/docker"
+#     args: ["push", "gcr.io/conductive-fold-275020/backend:latest"]
 
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/conductive-fold-275020/frontend:latest", "frontend/"]
+#   - name: "gcr.io/cloud-builders/docker"
+#     args: ["build", "-t", "gcr.io/conductive-fold-275020/frontend:latest", "frontend/"]
     #gcr.io/conductive-fold-275020/front@sha256:2587a3ae18e96d500a669357ff6fe13c9cbdedbe79139ef8be90568fdc5ba5e2
     # push container image
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/conductive-fold-275020/frontend:latest"]
+#   - name: "gcr.io/cloud-builders/docker"
+#     args: ["push", "gcr.io/conductive-fold-275020/frontend:latest"]
     # deploy container image to GKE
 
   # - name: "gcr.io/cloud-builders/gke-deploy"

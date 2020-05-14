@@ -17,8 +17,8 @@ spec:
         image: gcr.io/conductive-fold-275020/frontend:latest
         ports:
         - containerPort: 5000
-      - name: backend
-        image: gcr.io/conductive-fold-275020/backend:latest
+      - name: gke-backend
+        image: gcr.io/conductive-fold-275020/gke-backend:latest
         # env:
         # - name: dblake15
         #   value: "stolaunch"
