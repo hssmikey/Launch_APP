@@ -13,8 +13,8 @@ spec:
         app: launch-app
     spec:
       containers:
-      - name: frontend
-        image: gcr.io/conductive-fold-275020/frontend:latest
+      - name: gke-frontend
+        image: gcr.io/conductive-fold-275020/gke-frontend:latest
         ports:
         - containerPort: 5000
       - name: gke-backend
